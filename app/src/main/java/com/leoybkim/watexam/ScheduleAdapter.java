@@ -7,7 +7,11 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by leo on 24/12/16.
@@ -50,5 +54,12 @@ public class ScheduleAdapter extends ArrayAdapter<Schedule> {
         endTimeView.setText(currentSchedule.getEndTime());
 
         return listItemView;
+    }
+
+    // Date formatter
+    public String formatDate(String dateString) {
+        Date parsedDate = new SimpleDateFormat("yyyy-MM-dd").parse(dateString, new ParsePosition(0));
+        String newDate = new SimpleDateFormat("LLL dd, yyyy").format(parsedDate);
+        return newDate;
     }
 }

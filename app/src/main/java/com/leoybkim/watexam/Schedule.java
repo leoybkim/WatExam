@@ -13,7 +13,7 @@ public class Schedule {
     private String mEndTime;
 
     // Constructor
-    public Schedule (String classCode, String location, String date, String startTime, String endTime) {
+    public Schedule (String classCode, String date, String location,  String startTime, String endTime) {
         mClassCode = classCode;
         mDate = date;
         mLocation = location;

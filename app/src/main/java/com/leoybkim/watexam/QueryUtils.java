@@ -1,12 +1,23 @@
 package com.leoybkim.watexam;
 
+import android.text.TextUtils;
 import android.util.Log;
+import android.util.StringBuilderPrinter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by leo on 24/12/16.
@@ -16,18 +27,96 @@ public class QueryUtils {
 
     private static final String LOG_TAG = QueryUtils.class.getName();
 
-    // Hardcoded JSON response for now
-    private static final String SAMPLE_JSON_RESPONSE = "{\"meta\":{\"requests\":15,\"timestamp\":1482552703,\"status\":200,\"message\":\"Request successful\",\"method_id\":1187,\"method\":{\"disclaimer\":\"Review the 'No Warranty' section of the University of Waterloo Open Data License before using this data. If building services upon this data, please inform your users of the inherent risks (as a best practice)\",\"license\":\"https:\\/\\/uwaterloo.ca\\/open-data\\/university-waterloo-open-data-license-agreement-v1\"}},\"data\":[{\"course\":\"PHYS 233\",\"sections\":[{\"section\":\"001\",\"day\":\"Saturday\",\"date\":\"2016-04-23\",\"start_time\":\"4:00 PM\",\"end_time\":\"6:30 PM\",\"location\":\"PHY 308\",\"notes\":\"\"}]},{\"course\":\"ECE 318\",\"sections\":[{\"section\":\"001\",\"day\":\"Friday\",\"date\":\"2016-04-08\",\"start_time\":\"12:30 PM\",\"end_time\":\"3:00 PM\",\"location\":\"MC 4059,4060,4061\",\"notes\":\"\"},{\"section\":\"002\",\"day\":\"Friday\",\"date\":\"2016-04-08\",\"start_time\":\"12:30 PM\",\"end_time\":\"3:00 PM\",\"location\":\"MC 4059,4060,4061\",\"notes\":\"\"}]},{\"course\":\"ECE 390\",\"sections\":[{\"section\":\"001\",\"day\":\"Wednesday\",\"date\":\"2016-04-13\",\"start_time\":\"12:30 PM\",\"end_time\":\"3:00 PM\",\"location\":\"RCH 301,302\",\"notes\":\"\"},{\"section\":\"002\",\"day\":\"Wednesday\",\"date\":\"2016-04-13\",\"start_time\":\"12:30 PM\",\"end_time\":\"3:00 PM\",\"location\":\"RCH 301,302\",\"notes\":\"\"}]},{\"course\":\"ECE 356\",\"sections\":[{\"section\":\"001\",\"day\":\"Friday\",\"date\":\"2016-04-22\",\"start_time\":\"9:00 AM\",\"end_time\":\"11:30 AM\",\"location\":\"DC 1350\",\"notes\":\"\"}]},{\"course\":\"ECE 358\",\"sections\":[{\"section\":\"001\",\"day\":\"Tuesday\",\"date\":\"2016-04-19\",\"start_time\":\"4:00 PM\",\"end_time\":\"6:30 PM\",\"location\":\"PAC 6\",\"notes\":\"\"}]}]}";
-
     // Empty private constructor
     private QueryUtils() {}
 
+    // Query UWaterloo open data API and return list of Schedule objects
+    public static List<Schedule> fetchScheduleData(String requestUrl){
+        URL url = createUrl(requestUrl);
+
+        String JSONresponse  = null;
+        try {
+            JSONresponse = makeHttpRequest(url);
+        } catch (IOException e) {
+            Log.e(LOG_TAG, "Problem making the HTTP request.", e);
+        }
+
+        List<Schedule> schedules = extractSchedule(JSONresponse);
+        return schedules;
+    }
+
+    private static URL createUrl(String stringUrl) {
+        URL url = null;
+        try {
+            url = new URL(stringUrl);
+        } catch (MalformedURLException e) {
+            Log.e(LOG_TAG, "Problem occured while building the url", e);
+        }
+
+        return url;
+    }
+
+    private static String makeHttpRequest(URL url) throws IOException {
+        String JSONResponse = "";
+
+        if (url == null) {
+            return JSONResponse;
+        }
+
+        HttpURLConnection urlConnection = null;
+        InputStream inputStream = null;
+
+        try {
+            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setReadTimeout(10000 /* milliseconds */);
+            urlConnection.setConnectTimeout(15000 /* milliseconds */);
+            urlConnection.setRequestMethod("GET");
+            urlConnection.connect();
+
+            if (urlConnection.getResponseCode() == 200) {
+                inputStream = urlConnection.getInputStream();
+                JSONResponse = readFromStream(inputStream);
+            } else {
+                Log.e(LOG_TAG, "Error response code: " + urlConnection.getResponseCode());
+            }
+        } catch (IOException e) {
+            Log.e(LOG_TAG, "Problem retrieving the earthquake JSON results.", e);
+        } finally {
+            if (urlConnection != null) { urlConnection.disconnect(); }
+            if (inputStream != null) { inputStream.close(); }
+        }
+
+        return JSONResponse;
+    }
+
+    // Convert InputStream to String
+    private static String readFromStream(InputStream inputStream) throws IOException {
+        StringBuilder output = new StringBuilder();
+
+        if (inputStream != null) {
+            InputStreamReader inputStreamReader = new InputStreamReader(inputStream, Charset.forName("UTF-8"));
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+            String line = bufferedReader.readLine();
+
+            while (line != null) {
+                output.append(line);
+                line = bufferedReader.readLine();
+            }
+        }
+
+        return output.toString();
+    }
+
     // Parse out exam schedules from JSON payload into an ArrayList<Schedule>
-    public static ArrayList<Schedule> extractSchedule() {
+    public static ArrayList<Schedule> extractSchedule(String scheduleJSON) {
+        if (TextUtils.isEmpty(scheduleJSON)) {
+            return null;
+        }
+
         ArrayList<Schedule> schedules = new ArrayList<>();
 
         try {
-            JSONObject root = new JSONObject(SAMPLE_JSON_RESPONSE);
+            JSONObject root = new JSONObject(scheduleJSON);
             JSONArray data = root.getJSONArray("data");
 
             for (int i = 0; i < data.length(); i++) {
