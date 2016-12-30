@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#FFE600</color>
+    <color name="colorPrimary">#FFEB3B</color>
     <color name="colorPrimaryDark">#000000</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorAccent">#FFEB3B</color>
+
+    <!-- Text color for the class code of the schedules in the list item -->
+    <color name="textColorClassCode">#2B3D4D</color>
+
+    <!-- Background color for the class code of the schedules in the list item -->
+    <color name="backgroundColorClassCode">#F1F1F1</color>
 </resources>

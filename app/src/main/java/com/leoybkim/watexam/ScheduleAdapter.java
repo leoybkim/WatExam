@@ -1,6 +1,7 @@
 package com.leoybkim.watexam;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +22,8 @@ import java.util.Locale;
 
 public class ScheduleAdapter extends ArrayAdapter<Schedule> {
 
+    private static final String LOG_TAG = ScheduleAdapter.class.getName();
+
     // Constructor
     public ScheduleAdapter (Context context, List<Schedule> schedules) {
         super(context, 0, schedules);
@@ -40,26 +43,39 @@ public class ScheduleAdapter extends ArrayAdapter<Schedule> {
         // Find schedule at the given position in the list of schedules
         Schedule currentSchedule = getItem(position);
 
-        // Find view from schedule_list_item.xml and display string
+        // Find view from schedule_list_item.xml
         TextView classCodeView = (TextView) listItemView.findViewById(R.id.class_code);
         TextView dateView = (TextView) listItemView.findViewById(R.id.date);
         TextView locationView = (TextView) listItemView.findViewById(R.id.location);
-        TextView startTimeView = (TextView) listItemView.findViewById(R.id.start_time);
-        TextView endTimeView = (TextView) listItemView.findViewById(R.id.end_time);
+        TextView startTimeView = (TextView) listItemView.findViewById(R.id.time);
 
+        // Format string and display to TextView
         classCodeView.setText(currentSchedule.getClassCode());
-        dateView.setText(currentSchedule.getDate());
+        dateView.setText(formatDate(currentSchedule.getDate()));
         locationView.setText(currentSchedule.getLocation());
-        startTimeView.setText(currentSchedule.getStartTime());
-        endTimeView.setText(currentSchedule.getEndTime());
+        startTimeView.setText(formatTime(currentSchedule.getStartTime(), currentSchedule.getEndTime()));
 
         return listItemView;
     }
 
     // Date formatter
+    // Return String "Unknown" if date is null or before epoch time (1970-01-01)
     public String formatDate(String dateString) {
         Date parsedDate = new SimpleDateFormat("yyyy-MM-dd").parse(dateString, new ParsePosition(0));
-        String newDate = new SimpleDateFormat("LLL dd, yyyy").format(parsedDate);
-        return newDate;
+        if (parsedDate != null && !dateString.equals("1969-12-31")) {
+            return new SimpleDateFormat("LLL dd, yyyy").format(parsedDate);
+        } else {
+            return "Unknown";
+        }
     }
+
+    public String formatTime(String startTime, String endTime) {
+        if (startTime != null && !startTime.isEmpty() && endTime != null && !endTime.isEmpty()) {
+            return startTime + " - " + endTime;
+        } else {
+            return "";
+        }
+    }
+
+
 }
