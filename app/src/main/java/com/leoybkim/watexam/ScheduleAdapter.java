@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -23,10 +24,15 @@ import java.util.Locale;
 public class ScheduleAdapter extends ArrayAdapter<Schedule> {
 
     private static final String LOG_TAG = ScheduleAdapter.class.getName();
+    private List<Schedule> schedulesList = null;
+    private ArrayList<Schedule> arrayList;
 
     // Constructor
     public ScheduleAdapter (Context context, List<Schedule> schedules) {
         super(context, 0, schedules);
+        this.schedulesList = schedules;
+        arrayList = new ArrayList<>();
+        this.arrayList.addAll(schedules);
     }
 
     @Override
@@ -77,5 +83,16 @@ public class ScheduleAdapter extends ArrayAdapter<Schedule> {
         }
     }
 
+    public void filter(String searchKeyword, List<Schedule> schedules) {
+        searchKeyword = searchKeyword.toLowerCase(Locale.getDefault());
+        schedulesList.clear();
 
+        for (Schedule schedule: schedules) {
+            if (schedule.getClassCode().toLowerCase(Locale.getDefault()).contains(searchKeyword)) {
+                schedulesList.add(schedule);
+            }
+        }
+
+        notifyDataSetChanged();
+    }
 }

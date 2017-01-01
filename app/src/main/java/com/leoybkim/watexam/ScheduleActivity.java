@@ -1,10 +1,17 @@
 package com.leoybkim.watexam;
 
+import android.app.SearchManager;
+import android.content.Intent;
 import android.content.Loader;
 import android.app.LoaderManager;
 import android.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.SearchView;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.ListView;
 
 import java.util.ArrayList;
@@ -23,6 +30,8 @@ public class ScheduleActivity extends AppCompatActivity implements LoaderCallbac
     // Constant value for schedule loader id
     private static final int SCHEDULE_LOADER_ID = 1;
 
+    private List<Schedule> scheduleList;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,6 +49,38 @@ public class ScheduleActivity extends AppCompatActivity implements LoaderCallbac
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Create search bar on ActionBar
+        getMenuInflater().inflate(R.menu.menu_schedule_search, menu);
+        final MenuItem searchItem = menu.findItem(R.id.action_search);
+        final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        searchView.setQueryHint(getString(R.string.search_hint));
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                // Reset SearchView
+                searchView.clearFocus();
+                searchView.setQuery("", false);
+                searchView.setIconified(true);
+                searchItem.collapseActionView();
+                // Set activity title to search query
+                ScheduleActivity.this.setTitle(query);
+                mAdapter.filter(query, scheduleList);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String searchKeyword) {
+                mAdapter.filter(searchKeyword, scheduleList);
+                return false;
+            }
+        });
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
     public Loader<List<Schedule>> onCreateLoader(int i, Bundle bundle) {
         return new ScheduleLoader(this, UWATERLOO_API_URL);
     }
@@ -50,6 +91,9 @@ public class ScheduleActivity extends AppCompatActivity implements LoaderCallbac
         if (schedules != null && !schedules.isEmpty()) {
             mAdapter.addAll(schedules);
         }
+
+        // Saves copy for searching later
+        scheduleList = schedules;
     }
 
     @Override
