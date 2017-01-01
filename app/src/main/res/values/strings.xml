@@ -3,4 +3,8 @@
 
     <!-- Search hint for course search bar -->
     <string name="search_hint">Search courses</string>
+
+    <!-- Empty view -->
+    <string name="empty_view_title_text">No exams to display!</string>
+    <string name="empty_view_subtitle_text">Get started by searching a course</string>
 </resources>
