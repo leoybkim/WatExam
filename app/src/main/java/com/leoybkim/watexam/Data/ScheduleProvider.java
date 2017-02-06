@@ -9,8 +9,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.util.Log;
 
-import com.leoybkim.watexam.Schedule;
-
 /**
  * Created by leo on 05/02/17.
  */

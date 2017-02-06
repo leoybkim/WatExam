@@ -1,7 +1,9 @@
 package com.leoybkim.watexam;
 
+import android.content.ContentValues;
 import android.content.Context;
-import android.graphics.Color;
+import android.net.Uri;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +11,9 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.leoybkim.watexam.Data.ScheduleContract;
 
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
@@ -25,13 +30,16 @@ import java.util.Locale;
 
 public class ScheduleAdapter extends ArrayAdapter<Schedule> {
 
-    private static final String LOG_TAG = ScheduleAdapter.class.getName();
+    private static final String LOG_TAG = ScheduleAdapter.class.getSimpleName();
     private List<Schedule> mSchedules = null;
     private ArrayList<Schedule> mArrayList;
 
     private static final int NOT_SELECTED = -1;
     private int selectedPosition = NOT_SELECTED;
     private boolean empty = true;
+
+    private Uri mCurrentScheduleUri;
+
 
     // Constructor
     public ScheduleAdapter (Context context, List<Schedule> schedules) {
@@ -85,8 +93,6 @@ public class ScheduleAdapter extends ArrayAdapter<Schedule> {
 
         ImageView star = (ImageView) listItemView.findViewById(R.id.star);
 
-
-
         //View view = super.getView(position, convertView, parent);
         if (position == selectedPosition) {
             // Selected item
@@ -110,6 +116,11 @@ public class ScheduleAdapter extends ArrayAdapter<Schedule> {
             // Unselected item
             //istItemView.setBackgroundColor(Color.WHITE);
             star.setVisibility(View.INVISIBLE);
+        }
+
+        // If favourited, save to database
+        if (!empty) {
+            saveSchedule(currentSchedule);
         }
 
         return listItemView;
@@ -145,5 +156,49 @@ public class ScheduleAdapter extends ArrayAdapter<Schedule> {
         }
 
         notifyDataSetChanged();
+    }
+
+    private void saveSchedule(Schedule schedule) {
+        // Read from input fields
+        String classCode = schedule.getClassCode();
+        String location = schedule.getLocation();
+        String date = schedule.getDate();
+        String startTime = schedule.getStartTime();
+        String endTime = schedule.getEndTime();
+
+        if (mCurrentScheduleUri == null && TextUtils.isEmpty(classCode)
+                && TextUtils.isEmpty(location)
+                && TextUtils.isEmpty(date)
+                && TextUtils.isEmpty(startTime)
+                && TextUtils.isEmpty(endTime)){
+        }
+
+        // Create a new map of values, where column names are the keys
+        ContentValues values = new ContentValues();
+        values.put(ScheduleContract.ScheduleEntry.COLUMN_EXAM_CLASS, classCode);
+        values.put(ScheduleContract.ScheduleEntry.COLUMN_EXAM_LOCATION, location);
+        values.put(ScheduleContract.ScheduleEntry.COLUMN_EXAM_DATE, date);
+        values.put(ScheduleContract.ScheduleEntry.COLUMN_EXAM_START_TIME, startTime);
+        values.put(ScheduleContract.ScheduleEntry.COLUMN_EXAM_END_TIME, endTime);
+
+        if (mCurrentScheduleUri == null) {
+            Log.d(LOG_TAG, ScheduleContract.ScheduleEntry.CONTENT_URI.toString());
+            Uri newUri = getContext().getContentResolver().insert(ScheduleContract.ScheduleEntry.CONTENT_URI, values);
+
+            if (newUri == null) {
+                Toast.makeText(getContext(), getContext().getResources().getString(R.string.editor_insert_exam_failed), Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(getContext(), getContext().getResources().getString(R.string.editor_insert_exam_successful), Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            int rowsAffected = getContext().getContentResolver().update(mCurrentScheduleUri, values, null, null);
+
+            if (rowsAffected == 0)
+            {
+                Toast.makeText(getContext(), getContext().getResources().getString(R.string.editor_update_exam_failed), Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(getContext(), getContext().getResources().getString(R.string.editor_update_exam_successful), Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 }

@@ -2,7 +2,6 @@ package com.leoybkim.watexam;
 
 import android.text.TextUtils;
 import android.util.Log;
-import android.util.StringBuilderPrinter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
