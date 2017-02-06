@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.content.Loader;
 import android.app.LoaderManager;
 import android.app.LoaderManager.LoaderCallbacks;
+import android.graphics.Color;
+import android.net.Uri;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -12,6 +14,8 @@ import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import java.util.ArrayList;
@@ -30,7 +34,10 @@ public class ScheduleActivity extends AppCompatActivity implements LoaderCallbac
     // Constant value for schedule loader id
     private static final int SCHEDULE_LOADER_ID = 1;
 
-    private List<Schedule> scheduleList;
+    private List<Schedule> mSchedules;
+
+    // Arbitrary position when no item has been selected
+    private int mSelectedItem = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,8 +51,26 @@ public class ScheduleActivity extends AppCompatActivity implements LoaderCallbac
         mAdapter = new ScheduleAdapter(this, new ArrayList<Schedule>());
         scheduleListView.setAdapter(mAdapter);
 
+        // Use loader manager to put data processing on background thread
         LoaderManager loaderManager = getLoaderManager();
         loaderManager.initLoader(SCHEDULE_LOADER_ID, null, this);
+
+        // Highlight item on touch
+        scheduleListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                mAdapter.setSelection(position, false);
+            }
+        });
+
+        scheduleListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long l) {
+                Log.v(LOG_TAG, "Long clicked!");
+                mAdapter.setSelection(position, true);
+                return false;
+            }
+        });
     }
 
     @Override
@@ -56,6 +81,7 @@ public class ScheduleActivity extends AppCompatActivity implements LoaderCallbac
         final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
         searchView.setQueryHint(getString(R.string.search_hint));
 
+        // Filter items with search keyword
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -66,13 +92,13 @@ public class ScheduleActivity extends AppCompatActivity implements LoaderCallbac
                 searchItem.collapseActionView();
                 // Set activity title to search query
                 ScheduleActivity.this.setTitle(query);
-                mAdapter.filter(query, scheduleList);
+                mAdapter.filter(query, mSchedules);
                 return true;
             }
 
             @Override
             public boolean onQueryTextChange(String searchKeyword) {
-                mAdapter.filter(searchKeyword, scheduleList);
+                mAdapter.filter(searchKeyword, mSchedules);
                 return false;
             }
         });
@@ -93,7 +119,7 @@ public class ScheduleActivity extends AppCompatActivity implements LoaderCallbac
         }
 
         // Saves copy for searching later
-        scheduleList = schedules;
+        mSchedules = schedules;
     }
 
     @Override
