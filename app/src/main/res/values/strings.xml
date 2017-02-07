@@ -13,4 +13,5 @@
     <string name="editor_insert_exam_successful">Successfully saved an exam schedule</string>
     <string name="editor_update_exam_failed">Error with updating an exam schedule</string>
     <string name="editor_update_exam_successful">Successfully updated an exam schedule</string>
+    <string name="unknown">Unknown</string>
 </resources>

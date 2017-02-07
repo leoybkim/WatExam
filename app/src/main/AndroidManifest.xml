@@ -10,16 +10,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <provider android:authorities="com.leoybkim.watexam"
-            android:enabled="true"
-            android:multiprocess="true"
-            android:name=".Data.ScheduleProvider"
-            android:exported="true" ></provider>
-
         <activity android:name=".BookmarkActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -31,6 +24,9 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".BookmarkActivity" />
         </activity>
+        <provider android:authorities="com.leoybkim.watexam"
+            android:name=".Data.ScheduleProvider"
+            android:exported="false" />
     </application>
 
 </manifest>
