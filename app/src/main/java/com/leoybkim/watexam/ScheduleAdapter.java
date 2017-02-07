@@ -3,6 +3,7 @@ package com.leoybkim.watexam;
 import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -189,6 +190,7 @@ public class ScheduleAdapter extends ArrayAdapter<Schedule> {
                 Toast.makeText(getContext(), getContext().getResources().getString(R.string.editor_insert_exam_failed), Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(getContext(), getContext().getResources().getString(R.string.editor_insert_exam_successful), Toast.LENGTH_SHORT).show();
+                Log.d(LOG_TAG, Integer.toString(Toast.LENGTH_SHORT));
             }
         } else {
             int rowsAffected = getContext().getContentResolver().update(mCurrentScheduleUri, values, null, null);

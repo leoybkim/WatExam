@@ -13,5 +13,11 @@
     <string name="editor_insert_exam_successful">Successfully saved an exam schedule</string>
     <string name="editor_update_exam_failed">Error with updating an exam schedule</string>
     <string name="editor_update_exam_successful">Successfully updated an exam schedule</string>
+    <string name="editor_delete_schedule_failed">Failed deleting saved exam schedule</string>
+    <string name="editor_delete_schedule_successful">Successfully deleted saved exam schedule</string>
+
     <string name="unknown">Unknown</string>
+
+    <!-- Menu -->
+    <string name="action_delete_all_entries">Delete all exams</string>
 </resources>

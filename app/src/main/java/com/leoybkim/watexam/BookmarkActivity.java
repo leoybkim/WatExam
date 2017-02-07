@@ -5,15 +5,22 @@ import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.leoybkim.watexam.Data.ScheduleContract;
+
+import java.util.ArrayList;
 
 
 /**
@@ -25,7 +32,9 @@ public class BookmarkActivity extends AppCompatActivity implements LoaderManager
     // Arbitrary number
     private static final int SCHEDULE_LOADER = 0;
     private final static String LOG_TAG = BookmarkActivity.class.getSimpleName();
-    ScheduleCursorAdapter mCursorAdapter;
+    private ScheduleCursorAdapter mCursorAdapter;
+    private ScheduleAdapter mAdapter;
+    private Uri mCurrentScheduleUri;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -46,6 +55,8 @@ public class BookmarkActivity extends AppCompatActivity implements LoaderManager
         View emptyView = findViewById(R.id.empty_view);
         scheduleListView.setEmptyView(emptyView);
 
+        mAdapter = new ScheduleAdapter(this, new ArrayList<Schedule>());
+
         mCursorAdapter = new ScheduleCursorAdapter(this, null);
         scheduleListView.setAdapter(mCursorAdapter);
 
@@ -56,9 +67,18 @@ public class BookmarkActivity extends AppCompatActivity implements LoaderManager
             String stuff = tv.toString();
             Log.d(LOG_TAG, stuff);
         }
-        getLoaderManager().initLoader(SCHEDULE_LOADER, null, this);
-    }
 
+        getLoaderManager().initLoader(SCHEDULE_LOADER, null, this);
+
+        scheduleListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long l) {
+                Log.v(LOG_TAG, "Long clicked!");
+                deleteSchedule();
+                return false;
+            }
+        });
+    }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
@@ -87,5 +107,42 @@ public class BookmarkActivity extends AppCompatActivity implements LoaderManager
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         mCursorAdapter.swapCursor(null);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_catalog, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // User clicked on a menu option in the app bar overflow menu
+        switch (item.getItemId()) {
+            case R.id.action_delete_all_entries:
+                deleteAllSchedules();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void deleteAllSchedules() {
+        getContentResolver().delete(ScheduleContract.ScheduleEntry.CONTENT_URI, null, null);
+    }
+
+    private void deleteSchedule() {
+        Log.d(LOG_TAG, "deleteSchedule()");
+
+        if(mCurrentScheduleUri != null) {
+            int rowsDeleted = getContentResolver().delete(mCurrentScheduleUri, null, null);
+            Log.d(LOG_TAG, "deleted row");
+            if (rowsDeleted == 0) {
+                Toast.makeText(this, getString(R.string.editor_delete_schedule_failed),
+                        Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, getString(R.string.editor_delete_schedule_successful),
+                        Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 }
