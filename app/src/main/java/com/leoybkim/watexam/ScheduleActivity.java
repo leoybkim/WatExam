@@ -27,7 +27,7 @@ public class ScheduleActivity extends AppCompatActivity implements LoaderCallbac
     // Used for logging
     private static final String LOG_TAG = ScheduleActivity.class.getName();
 
-    private static final String UWATERLOO_API_URL="https://api.uwaterloo.ca/v2/terms/1161/examschedule.json?key=dda487cc76cfe50f8c339eb03866ad91";
+    private static final String UWATERLOO_API_URL="https://api.uwaterloo.ca/v2/terms/1171/examschedule.json?key=dda487cc76cfe50f8c339eb03866ad91";
 
     // Adpater for list of exam schedules
     private ScheduleAdapter mAdapter;
