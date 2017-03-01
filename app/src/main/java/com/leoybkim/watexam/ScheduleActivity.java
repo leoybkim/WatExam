@@ -5,6 +5,7 @@ import android.app.LoaderManager.LoaderCallbacks;
 import android.content.Loader;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
@@ -35,6 +36,10 @@ public class ScheduleActivity extends AppCompatActivity implements LoaderCallbac
     // Arbitrary position when no item has been selected
     private int mSelectedItem = -1;
 
+    private SwipeRefreshLayout swipeContainer;
+
+    private LoaderManager mLoaderManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,8 +53,23 @@ public class ScheduleActivity extends AppCompatActivity implements LoaderCallbac
         scheduleListView.setAdapter(mAdapter);
 
         // Use loader manager to put data processing on background thread
-        LoaderManager loaderManager = getLoaderManager();
-        loaderManager.initLoader(SCHEDULE_LOADER_ID, null, this);
+        mLoaderManager = getLoaderManager();
+        mLoaderManager.initLoader(SCHEDULE_LOADER_ID, null, this);
+
+        // Pull down the screen to reload schedule
+        swipeContainer = (SwipeRefreshLayout) findViewById(R.id.swipeContainer);
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                reload();
+                swipeContainer.setRefreshing(false);
+            }
+        });
+        // Refreshing arrow colors
+        swipeContainer.setColorSchemeResources(android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light);
 
         // Highlight item on touch
         scheduleListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -67,6 +87,10 @@ public class ScheduleActivity extends AppCompatActivity implements LoaderCallbac
                 return false;
             }
         });
+    }
+
+    public void reload() {
+        getLoaderManager().restartLoader(0, null, this);
     }
 
     @Override
@@ -95,7 +119,9 @@ public class ScheduleActivity extends AppCompatActivity implements LoaderCallbac
 
             @Override
             public boolean onQueryTextChange(String searchKeyword) {
-                mAdapter.filter(searchKeyword, mSchedules);
+                if (mSchedules!=null) {
+                    mAdapter.filter(searchKeyword, mSchedules);
+                }
                 return false;
             }
         });
