@@ -103,6 +103,7 @@ public class ScheduleProvider extends ContentProvider {
 
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
+        Log.d(LOG_TAG, "delete()");
         int rowsDeleted;
         SQLiteDatabase database = mDbHelper.getWritableDatabase();
 

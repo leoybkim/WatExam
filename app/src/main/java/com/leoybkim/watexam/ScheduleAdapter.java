@@ -121,7 +121,7 @@ public class ScheduleAdapter extends ArrayAdapter<Schedule> {
 
         // If favourited, save to database
         if (!empty) {
-            saveSchedule(currentSchedule);
+            saveSchedule(position);
         }
 
         return listItemView;
@@ -159,47 +159,51 @@ public class ScheduleAdapter extends ArrayAdapter<Schedule> {
         notifyDataSetChanged();
     }
 
-    private void saveSchedule(Schedule schedule) {
-        // Read from input fields
-        String classCode = schedule.getClassCode();
-        String location = schedule.getLocation();
-        String date = schedule.getDate();
-        String startTime = schedule.getStartTime();
-        String endTime = schedule.getEndTime();
+    private void saveSchedule(int position) {
+        Schedule schedule = getItem(position);
 
-        if (mCurrentScheduleUri == null && TextUtils.isEmpty(classCode)
-                && TextUtils.isEmpty(location)
-                && TextUtils.isEmpty(date)
-                && TextUtils.isEmpty(startTime)
-                && TextUtils.isEmpty(endTime)){
-        }
+        // Get just the selected position
+        if (position == selectedPosition) {
+            String classCode = schedule.getClassCode();
+            String location = schedule.getLocation();
+            String date = schedule.getDate();
+            String startTime = schedule.getStartTime();
+            String endTime = schedule.getEndTime();
 
-        // Create a new map of values, where column names are the keys
-        ContentValues values = new ContentValues();
-        values.put(ScheduleContract.ScheduleEntry.COLUMN_EXAM_CLASS, classCode);
-        values.put(ScheduleContract.ScheduleEntry.COLUMN_EXAM_LOCATION, location);
-        values.put(ScheduleContract.ScheduleEntry.COLUMN_EXAM_DATE, date);
-        values.put(ScheduleContract.ScheduleEntry.COLUMN_EXAM_START_TIME, startTime);
-        values.put(ScheduleContract.ScheduleEntry.COLUMN_EXAM_END_TIME, endTime);
-
-        if (mCurrentScheduleUri == null) {
-            Log.d(LOG_TAG, ScheduleContract.ScheduleEntry.CONTENT_URI.toString());
-            Uri newUri = getContext().getContentResolver().insert(ScheduleContract.ScheduleEntry.CONTENT_URI, values);
-
-            if (newUri == null) {
-                Toast.makeText(getContext(), getContext().getResources().getString(R.string.editor_insert_exam_failed), Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(getContext(), getContext().getResources().getString(R.string.editor_insert_exam_successful), Toast.LENGTH_SHORT).show();
-                Log.d(LOG_TAG, Integer.toString(Toast.LENGTH_SHORT));
+            if (mCurrentScheduleUri == null && TextUtils.isEmpty(classCode)
+                    && TextUtils.isEmpty(location)
+                    && TextUtils.isEmpty(date)
+                    && TextUtils.isEmpty(startTime)
+                    && TextUtils.isEmpty(endTime)){
             }
-        } else {
-            int rowsAffected = getContext().getContentResolver().update(mCurrentScheduleUri, values, null, null);
 
-            if (rowsAffected == 0)
-            {
-                Toast.makeText(getContext(), getContext().getResources().getString(R.string.editor_update_exam_failed), Toast.LENGTH_SHORT).show();
+            // Create a new map of values, where column names are the keys
+            ContentValues values = new ContentValues();
+            values.put(ScheduleContract.ScheduleEntry.COLUMN_EXAM_CLASS, classCode);
+            values.put(ScheduleContract.ScheduleEntry.COLUMN_EXAM_LOCATION, location);
+            values.put(ScheduleContract.ScheduleEntry.COLUMN_EXAM_DATE, date);
+            values.put(ScheduleContract.ScheduleEntry.COLUMN_EXAM_START_TIME, startTime);
+            values.put(ScheduleContract.ScheduleEntry.COLUMN_EXAM_END_TIME, endTime);
+
+            if (mCurrentScheduleUri == null) {
+                Log.d(LOG_TAG, ScheduleContract.ScheduleEntry.CONTENT_URI.toString());
+                Uri newUri = getContext().getContentResolver().insert(ScheduleContract.ScheduleEntry.CONTENT_URI, values);
+
+                if (newUri == null) {
+                    Toast.makeText(getContext(), getContext().getResources().getString(R.string.editor_insert_exam_failed), Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getContext(), getContext().getResources().getString(R.string.editor_insert_exam_successful), Toast.LENGTH_SHORT).show();
+                    Log.d(LOG_TAG, Integer.toString(Toast.LENGTH_SHORT));
+                }
             } else {
-                Toast.makeText(getContext(), getContext().getResources().getString(R.string.editor_update_exam_successful), Toast.LENGTH_SHORT).show();
+                int rowsAffected = getContext().getContentResolver().update(mCurrentScheduleUri, values, null, null);
+
+                if (rowsAffected == 0)
+                {
+                    Toast.makeText(getContext(), getContext().getResources().getString(R.string.editor_update_exam_failed), Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getContext(), getContext().getResources().getString(R.string.editor_update_exam_successful), Toast.LENGTH_SHORT).show();
+                }
             }
         }
     }

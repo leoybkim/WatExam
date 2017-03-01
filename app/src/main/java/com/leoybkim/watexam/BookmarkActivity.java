@@ -9,7 +9,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -51,7 +50,7 @@ public class BookmarkActivity extends AppCompatActivity implements LoaderManager
             }
         });
 
-        ListView scheduleListView = (ListView) findViewById(R.id.list);
+        final ListView scheduleListView = (ListView) findViewById(R.id.list);
         View emptyView = findViewById(R.id.empty_view);
         scheduleListView.setEmptyView(emptyView);
 
@@ -60,21 +59,16 @@ public class BookmarkActivity extends AppCompatActivity implements LoaderManager
         mCursorAdapter = new ScheduleCursorAdapter(this, null);
         scheduleListView.setAdapter(mCursorAdapter);
 
-
-        TextView tv = (TextView) findViewById(R.id.class_code);
-        if (tv != null) {
-
-            String stuff = tv.toString();
-            Log.d(LOG_TAG, stuff);
-        }
-
         getLoaderManager().initLoader(SCHEDULE_LOADER, null, this);
 
         scheduleListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long l) {
-                Log.v(LOG_TAG, "Long clicked!");
-                deleteSchedule();
+                // listView.getChildAt(i) works where 0 is the first visible row and (n-1) is the last visible row
+                int relativePosition = position - adapterView.getFirstVisiblePosition();
+                TextView tv = (TextView) adapterView.getChildAt(relativePosition).findViewById(R.id.class_code);
+                String classCode = tv.getText().toString();
+                deleteSchedule(classCode);
                 return false;
             }
         });
@@ -130,12 +124,13 @@ public class BookmarkActivity extends AppCompatActivity implements LoaderManager
         getContentResolver().delete(ScheduleContract.ScheduleEntry.CONTENT_URI, null, null);
     }
 
-    private void deleteSchedule() {
-        Log.d(LOG_TAG, "deleteSchedule()");
-
+    private void deleteSchedule(String classCode) {
         if(mCurrentScheduleUri != null) {
             int rowsDeleted = getContentResolver().delete(mCurrentScheduleUri, null, null);
-            Log.d(LOG_TAG, "deleted row");
+
+        } else {
+            int rowsDeleted = getContentResolver().delete(ScheduleContract.ScheduleEntry.CONTENT_URI, "class="+"'"+classCode+"'", null);
+
             if (rowsDeleted == 0) {
                 Toast.makeText(this, getString(R.string.editor_delete_schedule_failed),
                         Toast.LENGTH_SHORT).show();

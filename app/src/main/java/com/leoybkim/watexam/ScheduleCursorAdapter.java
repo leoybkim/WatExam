@@ -3,7 +3,6 @@ package com.leoybkim.watexam;
 import android.content.Context;
 import android.database.Cursor;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,7 +29,6 @@ public class ScheduleCursorAdapter extends CursorAdapter{
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
         // Find view that needs to be modified
-        Log.d("CursorAdapter", "Called!!1");
         TextView classCodeTextView = (TextView) view.findViewById(R.id.class_code);
         TextView dateTextView = (TextView) view.findViewById(R.id.date);
         TextView locationTextView = (TextView) view.findViewById(R.id.location);
