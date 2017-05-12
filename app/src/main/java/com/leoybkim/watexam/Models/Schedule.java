@@ -1,4 +1,4 @@
-package com.leoybkim.watexam;
+package com.leoybkim.watexam.Models;
 
 /**
  * Created by leo on 23/12/16.

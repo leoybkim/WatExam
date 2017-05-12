@@ -1,11 +1,14 @@
-package com.leoybkim.watexam;
+package com.leoybkim.watexam.Activities;
 
 import android.app.LoaderManager;
 import android.app.LoaderManager.LoaderCallbacks;
+import android.content.DialogInterface;
 import android.content.Loader;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
@@ -15,6 +18,13 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import com.leoybkim.watexam.Adapters.ScheduleAdapter;
+import com.leoybkim.watexam.BuildConfig;
+import com.leoybkim.watexam.Loaders.ScheduleLoader;
+import com.leoybkim.watexam.Models.Schedule;
+import com.leoybkim.watexam.Models.Term;
+import com.leoybkim.watexam.R;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,15 +33,18 @@ public class ScheduleActivity extends AppCompatActivity implements LoaderCallbac
     // Used for logging
     private static final String LOG_TAG = ScheduleActivity.class.getName();
 
-    private static final String UWATERLOO_API_URL="https://api.uwaterloo.ca/v2/terms/1171/examschedule.json?key=dda487cc76cfe50f8c339eb03866ad91";
+    private static final String EXAM_API_URL_ROOT ="https://api.uwaterloo.ca/v2/terms/";
+    private static final String EXAM_API_URL_APPEND ="/examschedule.json?key=" + BuildConfig.WAT_API_KEY;
 
     // Adpater for list of exam schedules
     private ScheduleAdapter mAdapter;
 
-    // Constant value for schedule loader id
+    // Constant value for schedule and term loader id
     private static final int SCHEDULE_LOADER_ID = 1;
+    private static final int TERM_LOADER_ID = 2;
 
     private List<Schedule> mSchedules;
+    private List<Term> mTerms;
 
     // Arbitrary position when no item has been selected
     private int mSelectedItem = -1;
@@ -55,6 +68,7 @@ public class ScheduleActivity extends AppCompatActivity implements LoaderCallbac
         // Use loader manager to put data processing on background thread
         mLoaderManager = getLoaderManager();
         mLoaderManager.initLoader(SCHEDULE_LOADER_ID, null, this);
+        mLoaderManager.initLoader(TERM_LOADER_ID, null, this);
 
         // Pull down the screen to reload schedule
         swipeContainer = (SwipeRefreshLayout) findViewById(R.id.swipeContainer);
@@ -131,7 +145,8 @@ public class ScheduleActivity extends AppCompatActivity implements LoaderCallbac
 
     @Override
     public Loader<List<Schedule>> onCreateLoader(int i, Bundle bundle) {
-        return new ScheduleLoader(this, UWATERLOO_API_URL);
+        String termCode = getIntent().getExtras().getString("termCode");
+        return new ScheduleLoader(this, EXAM_API_URL_ROOT + termCode + EXAM_API_URL_APPEND);
     }
 
     @Override
@@ -139,6 +154,27 @@ public class ScheduleActivity extends AppCompatActivity implements LoaderCallbac
         mAdapter.clear();
         if (schedules != null && !schedules.isEmpty()) {
             mAdapter.addAll(schedules);
+        }
+        else {
+            new Handler().post(new Runnable() {
+                @Override
+                public void run() {
+                    AlertDialog.Builder window = new AlertDialog.Builder(ScheduleActivity.this);
+                    window.setMessage("The exam schedule is not out yet!");
+                    window.setCancelable(true);
+
+                    window.setPositiveButton(
+                            "Go Back",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    dialog.cancel();
+                                    finish();
+                                }
+                            });
+
+                    window.create().show();
+                }
+            });
         }
 
         // Saves copy for searching later

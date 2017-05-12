@@ -3,6 +3,8 @@ package com.leoybkim.watexam;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.leoybkim.watexam.Models.Schedule;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

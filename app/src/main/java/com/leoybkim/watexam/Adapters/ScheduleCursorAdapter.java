@@ -1,4 +1,4 @@
-package com.leoybkim.watexam;
+package com.leoybkim.watexam.Adapters;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -10,6 +10,7 @@ import android.widget.CursorAdapter;
 import android.widget.TextView;
 
 import com.leoybkim.watexam.Data.ScheduleContract;
+import com.leoybkim.watexam.R;
 
 /**
  * Created by leo on 06/02/17.

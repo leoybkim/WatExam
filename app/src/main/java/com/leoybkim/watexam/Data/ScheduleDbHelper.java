@@ -21,6 +21,7 @@ public class ScheduleDbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
+        // Table for exam schedules
         String SQL_CREATE_EXAM_TABLE =  "CREATE TABLE " + ScheduleEntry.TABLE_NAME + " ("
                 + ScheduleEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + ScheduleEntry.COLUMN_EXAM_CLASS + " TEXT NOT NULL, "
@@ -29,10 +30,18 @@ public class ScheduleDbHelper extends SQLiteOpenHelper {
                 + ScheduleEntry.COLUMN_EXAM_START_TIME + " TEXT, "
                 + ScheduleEntry.COLUMN_EXAM_END_TIME + " TEXT);";
         db.execSQL(SQL_CREATE_EXAM_TABLE);
+
+        // Table for term lists
+//        String SQL_CREATE_TERM_TABLE = "CREATE TABLE " + TermEntry.TABLE_NAME + " ("
+//                + TermEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+//                + TermEntry.COLUMN_TERM_NAME + " TEXT NOT NULL);";
+//        db.execSQL(SQL_CREATE_TERM_TABLE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
+        db.execSQL("DROP IF TABLE EXISTS " + "exams");
+//        db.execSQL("DROP IF TABLE EXISTS " + "terms");
+        onCreate(db);
     }
 }

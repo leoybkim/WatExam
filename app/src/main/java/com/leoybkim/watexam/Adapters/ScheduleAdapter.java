@@ -1,9 +1,8 @@
-package com.leoybkim.watexam;
+package com.leoybkim.watexam.Adapters;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
-import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,6 +14,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.leoybkim.watexam.Data.ScheduleContract;
+import com.leoybkim.watexam.R;
+import com.leoybkim.watexam.Models.Schedule;
 
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;

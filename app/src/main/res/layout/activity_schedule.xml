@@ -11,6 +11,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        tools:context="com.leoybkim.watexam.ScheduleActivity" />
+        tools:context="com.leoybkim.watexam.Activities.ScheduleActivity" />
 
 </android.support.v4.widget.SwipeRefreshLayout>

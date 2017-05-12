@@ -20,4 +20,19 @@
 
     <!-- Menu -->
     <string name="action_delete_all_entries">Delete all exams</string>
+    <string name="action_change_to_previous_term">Previous term</string>
+    <string name="action_change_to_current_term">Current term</string>
+    <string name="action_change_to_next_term">Next term</string>
+
+    <!-- Spinner -->
+    <string-array name="term_array">
+        <item>Mercury</item>
+        <item>Venus</item>
+        <item>Earth</item>
+        <item>Mars</item>
+        <item>Jupiter</item>
+        <item>Saturn</item>
+        <item>Uranus</item>
+        <item>Neptune</item>
+    </string-array>
 </resources>

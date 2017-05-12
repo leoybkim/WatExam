@@ -6,4 +6,19 @@
         android:id="@+id/action_delete_all_entries"
         android:title="@string/action_delete_all_entries"
         app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_previous_term"
+        android:title="@string/action_change_to_previous_term"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_current_term"
+        android:title="@string/action_change_to_current_term"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_next_term"
+        android:title="@string/action_change_to_next_term"
+        app:showAsAction="never" />
 </menu>

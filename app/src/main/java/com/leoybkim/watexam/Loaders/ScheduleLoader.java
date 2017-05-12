@@ -1,7 +1,11 @@
-package com.leoybkim.watexam;
+package com.leoybkim.watexam.Loaders;
 
 import android.content.AsyncTaskLoader;
 import android.content.Context;
+import android.util.Log;
+
+import com.leoybkim.watexam.Models.Schedule;
+import com.leoybkim.watexam.QueryUtils;
 
 import java.util.List;
 
@@ -27,6 +31,11 @@ public class ScheduleLoader extends AsyncTaskLoader<List<Schedule>> {
     public List<Schedule> loadInBackground() {
         if (mUrl == null) {
             return null;
+        }
+
+
+        if (QueryUtils.fetchScheduleData(mUrl).isEmpty() || QueryUtils.fetchScheduleData(mUrl) == null) {
+            Log.d("Fuck", QueryUtils.fetchScheduleData(mUrl).toString());
         }
 
         return QueryUtils.fetchScheduleData(mUrl);
